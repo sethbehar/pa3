@@ -46,13 +46,13 @@ public class Server {
 
             boolean playerTurn = true;
             while (playerTurn) {
-                output.writeUTF("Your hand: " + playerHand + " (Total: " + calculateScore(playerHand) + ")");
+                output.writeUTF("Your hand: " + formatHand(playerHand) + " (Total: " + calculateScore(playerHand) + ")");
                 output.writeUTF("Hit or Stand?");
                 String command = input.readUTF();
                 if (command.equalsIgnoreCase("hit")) {
                     playerHand.add(deck.remove(0));
                     if (calculateScore(playerHand) > 21) {
-                        output.writeUTF("Bust! Your hand: " + playerHand + " (Total: " + calculateScore(playerHand) + ")");
+                        output.writeUTF("Bust! Your hand: " + formatHand(playerHand) + " (Total: " + calculateScore(playerHand) + ")");
                         playerTurn = false;
                     }
                 } else if (command.equalsIgnoreCase("stand")) {
@@ -66,7 +66,7 @@ public class Server {
             int playerScore = calculateScore(playerHand);
             int dealerScore = calculateScore(dealerHand);
 
-            output.writeUTF("Dealer's hand: " + dealerHand + " (Total: " + dealerScore + ")");
+            output.writeUTF("Dealer's hand: " + formatHand(dealerHand) + " (Total: " + dealerScore + ")");
             if (dealerScore > 21 || playerScore > dealerScore) {
                 output.writeUTF("You win!");
             } else if (dealerScore == playerScore) {
@@ -79,6 +79,8 @@ public class Server {
             String playAgainInput = input.readUTF();
             if (!playAgainInput.equalsIgnoreCase("yes")) {
                 playAgain = false;
+                output.writeUTF("exit");
+
             }
         }
     }
@@ -117,6 +119,18 @@ public class Server {
             aceCount--;
         }
         return score;
+    }
+
+    private String formatHand(List<Integer> hand) {
+        List<Integer> formattedHand = new ArrayList<>();
+        for (int card : hand) {
+            if (card > 10) {
+                formattedHand.add(10);
+            } else {
+                formattedHand.add(card);
+            }
+        }
+        return formattedHand.toString();
     }
 
     public static void main(String[] args) {
