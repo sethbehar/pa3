@@ -28,14 +28,13 @@ public class Client {
     private void interactWithServer() throws IOException {
         BufferedReader console = new BufferedReader(new InputStreamReader(System.in));
         String line = "";
-        while (!line.equals("exit")) {
+        while (!line.equalsIgnoreCase("exit")) {
             line = serverInput.readUTF();
-            if (line.toLowerCase().contains("hit or stand")) {
-                System.out.println(line);
+            System.out.println(line);
+            if (line.toLowerCase().contains("hit or stand") || line.toLowerCase().contains("do you want to play again?")) {
+                System.out.print("Your choice: ");
                 line = console.readLine();
                 serverOutput.writeUTF(line);
-            } else {
-                System.out.println(line);
             }
         }
     }

@@ -34,69 +34,59 @@ public class Server {
         }
     }
 
+    private void playBlackjack() throws IOException {
+        boolean playAgain = true;
+        while (playAgain) {
+            initializeDeck();
+            playerHand = new ArrayList<>();
+            dealerHand = new ArrayList<>();
 
-    private void playBlackjack() {
-        try {
-            boolean playAgain = true;
-            while (playAgain) {
-                initializeDeck();
-                playerHand = new ArrayList<>();
-                dealerHand = new ArrayList<>();
-    
-                dealInitialCards(playerHand);
-                dealInitialCards(dealerHand);
-    
-                boolean playerTurn = true;
-                String command = "";
-                while (playerTurn) {
-                    output.writeUTF("Your hand: " + playerHand + " (Total: " + calculateScore(playerHand) + ")");
-                    output.writeUTF("Hit or Stand?");
-                    command = input.readUTF();
-                    if (command.equalsIgnoreCase("hit")) {
-                        playerHand.add(deck.remove(0));
-                        if (calculateScore(playerHand) > 21) {
-                            output.writeUTF("Bust! Your hand: " + playerHand + " (Total: " + calculateScore(playerHand) + ")");
-                            playerTurn = false;
-                        }
-                    } else if (command.equalsIgnoreCase("stand")) {
+            dealInitialCards(playerHand);
+            dealInitialCards(dealerHand);
+
+            boolean playerTurn = true;
+            while (playerTurn) {
+                output.writeUTF("Your hand: " + playerHand + " (Total: " + calculateScore(playerHand) + ")");
+                output.writeUTF("Hit or Stand?");
+                String command = input.readUTF();
+                if (command.equalsIgnoreCase("hit")) {
+                    playerHand.add(deck.remove(0));
+                    if (calculateScore(playerHand) > 21) {
+                        output.writeUTF("Bust! Your hand: " + playerHand + " (Total: " + calculateScore(playerHand) + ")");
                         playerTurn = false;
                     }
-                }
-    
-                while (calculateScore(dealerHand) < 17) {
-                    dealerHand.add(deck.remove(0));
-                }
-                int playerScore = calculateScore(playerHand);
-                int dealerScore = calculateScore(dealerHand);
-    
-                output.writeUTF("Dealer's hand: " + dealerHand + " (Total: " + dealerScore + ")");
-                if (dealerScore > 21 || playerScore > dealerScore) {
-                    output.writeUTF("You win!");
-                } else if (dealerScore == playerScore) {
-                    output.writeUTF("It's a draw!");
-                } else {
-                    output.writeUTF("Dealer wins!");
-                }
-    
-                output.writeUTF("Do you want to play again? (yes/no)");
-                String playAgainInput = input.readUTF();
-                if (!playAgainInput.equalsIgnoreCase("yes")) {
-                    playAgain = false;
+                } else if (command.equalsIgnoreCase("stand")) {
+                    playerTurn = false;
                 }
             }
-        } catch (EOFException e) {
-            System.out.println("Client disconnected.");
-        } catch (IOException e) {
-            System.out.println("Error: " + e.getMessage());
-            e.printStackTrace();
+
+            while (calculateScore(dealerHand) < 17) {
+                dealerHand.add(deck.remove(0));
+            }
+            int playerScore = calculateScore(playerHand);
+            int dealerScore = calculateScore(dealerHand);
+
+            output.writeUTF("Dealer's hand: " + dealerHand + " (Total: " + dealerScore + ")");
+            if (dealerScore > 21 || playerScore > dealerScore) {
+                output.writeUTF("You win!");
+            } else if (dealerScore == playerScore) {
+                output.writeUTF("It's a draw!");
+            } else {
+                output.writeUTF("Dealer wins!");
+            }
+
+            output.writeUTF("Do you want to play again? (yes/no)");
+            String playAgainInput = input.readUTF();
+            if (!playAgainInput.equalsIgnoreCase("yes")) {
+                playAgain = false;
+            }
         }
     }
-    
 
     private void initializeDeck() {
         deck = new ArrayList<>();
-        for (int i = 1; i <= 13; i++) { // Cards 1-13 for each suit
-            for (int j = 0; j < 4; j++) { // Four suits
+        for (int i = 1; i <= 13; i++) {
+            for (int j = 0; j < 4; j++) {
                 deck.add(i);
             }
         }
@@ -112,10 +102,10 @@ public class Server {
         int score = 0;
         int aceCount = 0;
         for (int card : hand) {
-            if (card == 1) { // Ace
+            if (card == 1) {
                 aceCount++;
                 score += 11;
-            } else if (card > 10) { // Face cards
+            } else if (card > 10) {
                 score += 10;
             } else {
                 score += card;
@@ -123,7 +113,7 @@ public class Server {
         }
 
         while (score > 21 && aceCount > 0) {
-            score -= 10; // Reduce Ace from 11 to 1
+            score -= 10;
             aceCount--;
         }
         return score;
@@ -133,8 +123,7 @@ public class Server {
         if (args.length != 1) {
             System.out.println("Please provide the port number as an argument.");
         } else {
-            int port = Integer.parseInt(args[0]);
-            new Server(port);
+            new Server(Integer.parseInt(args[0]));
         }
     }
 }
